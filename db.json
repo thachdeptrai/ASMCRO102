@@ -1,0 +1,74 @@
+{
+  "product_tree": [
+    {
+      "id": "1",
+      "image": "https://noithatduckhang.com/img/uploads/images/phongthuy/T8-2018/cay-day-nhen-thuy-sinh-2.jpg",
+      "name": "Spider Plant",
+      "onffo": "Ưa bóng",
+      "status": "Còn 156 sp",
+      "size": "nhỏ",
+      "origin": "Châu phi",
+      "price": "250.000"
+    },
+    {
+      "id": "2",
+      "image": "https://www.thespruce.com/thmb/ey-O-Dm6HMCJ90fADxUKOi-x4f0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/growing-the-song-of-india-5087083-5-96244da89c8a4053a6d4c79207bdaf49.jpg",
+      "name": "Song of India",
+      "onffo": "Ưa bóng",
+      "status": "Còn 156 sp",
+      "size": "nhỏ",
+      "origin": "Châu phi",
+      "price": "250.000"
+    }
+  ],
+  "product_pot": [
+    {
+      "id": "1",
+      "image": "https://thegioicaycanhsaigon.com/images/stories/virtuemart/product/resized/chau-bom-gom-su-bat-trang-trang-d35h45_450x600.jpg",
+      "name": "Planta Trắng",
+      "price": "250.000"
+    },
+    {
+      "id": "2",
+      "image": "https://bancongxanh.com/wp-content/uploads/2022/04/Chau-nhua-trong-cay-2-day-PY-dk-27.8-x-cao-28cm.jpg",
+      "name": "Planta Lemon Balm",
+      "price": "250.000"
+    }
+  ],
+  "product_tools": [
+    {
+      "id": "1",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFBUBDGlbXT8f20nrTbuy8z54Llcqu7PCoKQ&s",
+      "name": "Cuốc",
+      "price": "250.000"
+    },
+    {
+      "id": "2",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM4T13d4yatFFfWZJBbqs7v8E0-BHMG8tUVA&s",
+      "name": "Bình tưới nước",
+      "price": "250.000"
+    }
+  ],
+  "LOGIN": [
+    {
+      "id": "9692",
+      "username": "quyen",
+      "password": "123456"
+    },
+    {
+      "id": "60b1",
+      "username": "Quyen",
+      "password": "123456"
+    },
+    {
+      "id": "bff2",
+      "username": "Thach",
+      "password": "123456"
+    },
+    {
+      "id": "ffb2",
+      "username": "Thach",
+      "password": "thach"
+    }
+  ]
+}
