@@ -10,6 +10,7 @@ import {
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
+import API from "@/login/api";
 
 const categories = [
   { id: "all", title: "Tất cả" },
@@ -23,7 +24,7 @@ const TreeScreen = () => {
   const [filteredTree, setFilteredTree] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const navigation = useNavigation();
-  const apiTree = "http://10.24.30.107:3000/product_tree";
+  const apiTree = API.TREE;
 
   useEffect(() => {
     getList();
@@ -59,14 +60,14 @@ const TreeScreen = () => {
     <TouchableOpacity
       style={[
         styles.categoryButton,
-        selectedCategory === item.id && styles.categoryButtonSelected,
+        selectedCategory === item._id && styles.categoryButtonSelected,
       ]}
-      onPress={() => setSelectedCategory(item.id)}
+      onPress={() => setSelectedCategory(item._id)}
     >
       <Text
         style={[
           styles.categoryText,
-          selectedCategory === item.id && styles.categoryTextSelected,
+          selectedCategory === item._id && styles.categoryTextSelected,
         ]}
       >
         {item.title}
@@ -92,7 +93,7 @@ const TreeScreen = () => {
       <FlatList
         data={categories}
         renderItem={renderCategoryItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.categoryList}
@@ -102,7 +103,7 @@ const TreeScreen = () => {
       <FlatList
         data={filteredTree}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item._id.toString()}
         numColumns={2}
       />
     </SafeAreaView>
@@ -136,16 +137,21 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    justifyContent: "center",
-    margin: 10,
+    backgroundColor: "#fff",
     borderRadius: 10,
+    padding: 10,
+    margin: 10,
     shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
   },
   image: {
-    width: 150,
+    width: "100%",
     height: 140,
-    borderRadius: 5,
-  },
+    borderRadius: 10,
+  },  
   name: {
     fontSize: 16,
     fontWeight: "bold",

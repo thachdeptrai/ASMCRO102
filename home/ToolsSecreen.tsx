@@ -13,12 +13,11 @@ import axios from "axios";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
+import API from "@/login/api";
 
 const ToolsSecreen = () => {
   const [productToolst, setProductToolst] = useState([]);
   const navigation = useNavigation();
-
-  const apiToolst = "http://10.24.30.107:3000/product_tools";
 
   useEffect(() => {
     console.log("Loading...");
@@ -27,7 +26,7 @@ const ToolsSecreen = () => {
 
   const getList = async () => {
     try {
-      const toolsRes = await axios.get(apiToolst);
+      const toolsRes = await axios.get(API.TOOLS);
       setProductToolst(toolsRes.data);
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu", error);
@@ -55,7 +54,7 @@ const ToolsSecreen = () => {
           <FlatList
             data={productToolst}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item._id.toString()}
             numColumns={2}
             scrollEnabled={false}
           />
@@ -80,18 +79,22 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    justifyContent: "center",
-
-    margin: 10,
-
+    backgroundColor: "#fff",
     borderRadius: 10,
+    padding: 10,
+    margin: 10,
     shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
   },
   image: {
-    width: 150,
+    width: "100%",
     height: 140,
-    borderRadius: 5,
+    borderRadius: 10,
   },
+  
   name: {
     fontSize: 16,
     fontWeight: "bold",

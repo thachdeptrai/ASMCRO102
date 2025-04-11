@@ -9,33 +9,34 @@ import {
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import API from "@/login/api";
 
 const DetailScreen = ({ route }) => {
   const { product } = route.params;
   const [quantity, setQuantity] = useState(0);
   const [cart, setCart] = useState([]);
-  const totalPrice = quantity * product.price;
+  const totalPrice = quantity * product.price; 
   const navigation = useNavigation();
   const addToCart = async () => {
     try {
       let cart = await AsyncStorage.getItem("cart");
       cart = cart ? JSON.parse(cart) : [];
-
-      // Kiểm tra nếu sản phẩm đã tồn tại trong giỏ hàng
-      const index = cart.findIndex((item) => item.id === product.id);
+  
+      const index = cart.findIndex((item) => item._id === product._id);
       if (index !== -1) {
-        cart[index].quantity += 1; // Tăng số lượng nếu đã có trong giỏ hàng
+        cart[index].quantity += quantity; // tăng theo số lượng chọn
       } else {
-        cart.push({ ...product, quantity: 1 }); // Thêm sản phẩm mới
+        cart.push({ ...product, quantity }); // thêm sản phẩm mới
       }
-
-      await AsyncStorage.setItem("cart", JSON.stringify(cart));
-      navigation.navigate("GioHang"); // Chuyển sang màn giỏ hàng
+  
+   
+  
+      navigation.navigate("GioHang");
     } catch (error) {
-      console.error("Lỗi khi thêm vào giỏ hàng:", error);
+      console.error("Lỗi khi thêm vào giỏ hàng hoặc gửi thông báo:", error);
     }
   };
-
+  
   const isPot =
     !product.onffo && !product.status && !product.size && !product.origin;
 

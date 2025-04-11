@@ -48,27 +48,5 @@
       "name": "Bình tưới nước",
       "price": "250.000"
     }
-  ],
-  "LOGIN": [
-    {
-      "id": "9692",
-      "username": "quyen",
-      "password": "123456"
-    },
-    {
-      "id": "60b1",
-      "username": "Quyen",
-      "password": "123456"
-    },
-    {
-      "id": "bff2",
-      "username": "Thach",
-      "password": "123456"
-    },
-    {
-      "id": "ffb2",
-      "username": "Thach",
-      "password": "thach"
-    }
   ]
 }

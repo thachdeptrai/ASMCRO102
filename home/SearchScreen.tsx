@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
@@ -7,40 +7,56 @@ import {
   FlatList,
   Text,
   Image,
+  Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
+import { useNavigation } from "@react-navigation/native";
+import DetailScreen from "./DetailScreen"; // đúng path đến file
+
+import API from "@/login/api";
 
 const SearchScreen = () => {
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [recentSearches, setRecentSearches] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
 
-  const apiTree = "http://10.24.30.107:3000/product_tree";
-  const apiPot = "http://10.24.30.107:3000/product_pot";
+  const apiTree = API.TREE;
+  const apiPot = API.POT;
 
-  const handleSearch = async (text) => {
-    setSearchText(text);
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (searchText.trim() !== "") {
+        handleSearch();
+      } else {
+        setSearchResults([]);
+      }
+    }, 300); // đợi 300ms sau khi ngừng gõ mới tìm
 
-    if (text.trim() === "") {
-      setSearchResults([]);
-      return;
-    }
+    return () => clearTimeout(delayDebounce);
+  }, [searchText]);
 
+  const handleSearch = async () => {
     try {
+      setLoading(true);
       const [treeRes, potRes] = await Promise.all([
         axios.get(apiTree),
         axios.get(apiPot),
       ]);
       const allProducts = [...treeRes.data, ...potRes.data];
 
-      const filteredProducts = allProducts.filter((item) =>
-        item.name.toLowerCase().includes(text.toLowerCase())
+      const filtered = allProducts.filter((item) =>
+        item.name.toLowerCase().includes(searchText.toLowerCase())
       );
 
-      setSearchResults(filteredProducts);
+      setSearchResults(filtered);
     } catch (error) {
       console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,14 +65,15 @@ const SearchScreen = () => {
     setRecentSearches((prev) => {
       const updated = [
         product,
-        ...prev.filter((item) => item.id !== product.id),
+        ...prev.filter((item) => item._id !== product._id),
       ];
-      return updated.slice(0, 5); // Giới hạn 5 sản phẩm gần đây
+      return updated.slice(0, 5);
     });
+    navigation.navigate("DetailScreen", { product }); // Điều hướng tới trang chi tiết
   };
 
-  const removeRecentSearch = (id) => {
-    setRecentSearches((prev) => prev.filter((item) => item.id !== id));
+  const removeRecentSearch = (_id) => {
+    setRecentSearches((prev) => prev.filter((item) => item._id !== _id));
   };
 
   return (
@@ -67,27 +84,29 @@ const SearchScreen = () => {
           style={styles.searchInput}
           placeholder="Tìm kiếm sản phẩm..."
           value={searchText}
-          onChangeText={handleSearch}
+          onChangeText={setSearchText}
         />
-        <TouchableOpacity
-          onPress={() => handleSearch(searchText)}
-          style={styles.searchButton}
-        >
+        <TouchableOpacity onPress={handleSearch} style={styles.searchButton}>
           <MaterialIcons name="search" size={24} color="black" />
         </TouchableOpacity>
       </View>
 
+      {/* Loading */}
+      {loading && (
+        <ActivityIndicator size="large" color="#000" style={{ marginVertical: 10 }} />
+      )}
+
       {/* Tìm kiếm gần đây */}
-      {recentSearches.length > 0 && (
+      {!loading && recentSearches.length > 0 && (
         <View style={styles.recentSearchContainer}>
           <Text style={styles.recentTitle}>Tìm kiếm gần đây</Text>
           <FlatList
             data={recentSearches}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item._id.toString()}
             renderItem={({ item }) => (
               <View style={styles.recentItem}>
                 <Text style={styles.recentText}>{item.name}</Text>
-                <TouchableOpacity onPress={() => removeRecentSearch(item.id)}>
+                <TouchableOpacity onPress={() => removeRecentSearch(item._id)}>
                   <MaterialIcons name="close" size={20} color="gray" />
                 </TouchableOpacity>
               </View>
@@ -96,11 +115,11 @@ const SearchScreen = () => {
         </View>
       )}
 
-      {/* Danh sách kết quả tìm kiếm */}
-      {searchResults.length > 0 && (
+      {/* Kết quả tìm kiếm */}
+      {!loading && searchResults.length > 0 && (
         <FlatList
           data={searchResults}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item._id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.resultItem}

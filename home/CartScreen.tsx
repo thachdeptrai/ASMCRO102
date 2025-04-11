@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -14,12 +14,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-const GioHangScreen = () => {
-  const [cart, setCart] = useState([]);
-  const [selectedItems, setSelectedItems] = useState({});
+const GioHangScreen: React.FC = () => {
+  const [cart, setCart] = useState<any[]>([]);
+  const [selectedItems, setSelectedItems] = useState<{
+    [key: string]: boolean;
+  }>({});
   const animatedValue = useRef(new Animated.Value(0)).current;
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
+
   useEffect(() => {
     getCart();
   }, []);
@@ -39,11 +42,12 @@ const GioHangScreen = () => {
     const cartData = await AsyncStorage.getItem("cart");
     const parsedCart = cartData ? JSON.parse(cartData) : [];
     setCart(parsedCart);
-    const sel = {};
-    parsedCart.forEach((item) => (sel[item.id] = false));
+    const sel: { [key: string]: boolean } = {};
+    parsedCart.forEach((item) => (sel[item._id] = false));
     setSelectedItems(sel);
   };
 
+  // Xóa toàn bộ giỏ hàng (nếu cần dùng modal)
   const deleteAllItems = async () => {
     setCart([]);
     await AsyncStorage.removeItem("cart");
@@ -51,16 +55,39 @@ const GioHangScreen = () => {
     setModalVisible(false);
   };
 
-  const toggleSelect = (id) => {
+  // Xóa một sản phẩm theo _id
+  const deleteItem = async (_id: string) => {
+    Alert.alert(
+      "Xác nhận",
+      "Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?",
+      [
+        { text: "Hủy", style: "cancel" },
+        {
+          text: "Đồng ý",
+          onPress: async () => {
+            const updatedCart = cart.filter((item) => item._id !== _id);
+            setCart(updatedCart);
+            await AsyncStorage.setItem("cart", JSON.stringify(updatedCart));
+            // Cập nhật selectedItems nếu cần
+            const updatedSelected = { ...selectedItems };
+            delete updatedSelected[_id];
+            setSelectedItems(updatedSelected);
+          },
+        },
+      ]
+    );
+  };
+
+  const toggleSelect = (_id: string) => {
     setSelectedItems((prev) => ({
       ...prev,
-      [id]: !prev[id],
+      [_id]: !prev[_id],
     }));
   };
 
-  const updateQuantity = async (id, delta) => {
+  const updateQuantity = async (_id: string, delta: number) => {
     const updatedCart = cart.map((item) => {
-      if (item.id === id) {
+      if (item._id === _id) {
         const newQuantity = item.quantity + delta;
         return { ...item, quantity: newQuantity < 1 ? 1 : newQuantity };
       }
@@ -72,7 +99,7 @@ const GioHangScreen = () => {
 
   const totalSummary = cart.reduce(
     (acc, item) => {
-      if (selectedItems[item.id]) {
+      if (selectedItems[item._id]) {
         acc.totalPrice += item.price * item.quantity;
         acc.totalQuantity += item.quantity;
       }
@@ -81,54 +108,54 @@ const GioHangScreen = () => {
     { totalPrice: 0, totalQuantity: 0 }
   );
 
+  const renderItem = ({ item }: { item: any }) => (
+    <View style={styles.item}>
+      <TouchableOpacity onPress={() => toggleSelect(item._id)}>
+        <MaterialIcons
+          name={
+            selectedItems[item._id] ? "check-box" : "check-box-outline-blank"
+          }
+          size={24}
+          color="black"
+        />
+      </TouchableOpacity>
+
+      <Image source={{ uri: item.image }} style={styles.image} />
+
+      <View style={styles.details}>
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.price}>{item.price}đ</Text>
+        <View style={styles.quantityContainer}>
+          <TouchableOpacity
+            onPress={() => updateQuantity(item._id, -1)}
+            style={styles.quantityButton}
+          >
+            <Text style={styles.quantityText}>-</Text>
+          </TouchableOpacity>
+          <Text style={styles.quantity}>{item.quantity}</Text>
+          <TouchableOpacity
+            onPress={() => updateQuantity(item._id, 1)}
+            style={styles.quantityButton}
+          >
+            <Text style={styles.quantityText}>+</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => deleteItem(item._id)}
+            style={styles.deleteButton}
+          >
+            <MaterialIcons name="delete" size={24} color="red" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <FlatList
         data={cart}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.item}>
-            <TouchableOpacity onPress={() => toggleSelect(item.id)}>
-              <MaterialIcons
-                name={
-                  selectedItems[item.id]
-                    ? "check-box"
-                    : "check-box-outline-blank"
-                }
-                size={24}
-                color="black"
-              />
-            </TouchableOpacity>
-
-            <Image source={{ uri: item.image }} style={styles.image} />
-
-            <View style={styles.details}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.price}>{item.price}đ</Text>
-              <View style={styles.quantityContainer}>
-                <TouchableOpacity
-                  onPress={() => updateQuantity(item.id, -1)}
-                  style={styles.quantityButton}
-                >
-                  <Text style={styles.quantityText}>-</Text>
-                </TouchableOpacity>
-                <Text style={styles.quantity}>{item.quantity}</Text>
-                <TouchableOpacity
-                  onPress={() => updateQuantity(item.id, 1)}
-                  style={styles.quantityButton}
-                >
-                  <Text style={styles.quantityText}>+</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => setModalVisible(true)}
-                  style={styles.deleteButton}
-                >
-                  <MaterialIcons name="delete" size={24} color="red" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        )}
+        keyExtractor={(item) => item._id.toString()}
+        renderItem={renderItem}
       />
       <Modal
         animationType="slide"
@@ -154,7 +181,6 @@ const GioHangScreen = () => {
           </View>
         </View>
       </Modal>
-
       {/* Phần tạm tính với animation */}
       <Animated.View
         style={[
@@ -163,7 +189,7 @@ const GioHangScreen = () => {
             opacity: animatedValue,
             height: animatedValue.interpolate({
               inputRange: [0, 1],
-              outputRange: [0, 100], // Khi không có sản phẩm, chiều cao là 0
+              outputRange: [0, 100],
             }),
             overflow: "hidden",
           },
@@ -174,17 +200,28 @@ const GioHangScreen = () => {
             Tạm tính:{" "}
             {totalSummary.totalPrice
               .toFixed(0)
-              .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{" "}
-            .000đ
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+            {""}K đ
           </Text>
-
           <Text style={styles.summaryText}>
             Số lượng: {totalSummary.totalQuantity}
           </Text>
         </View>
         <TouchableOpacity
           style={styles.checkoutButton}
-          onPress={() => navigation.navigate("Pay")}
+          onPress={() => {
+            const selectedItemsArray = cart.filter(
+              (item) => selectedItems[item._id]
+            );
+            if (selectedItemsArray.length === 0) {
+              Alert.alert(
+                "Thông báo",
+                "Bạn chưa chọn sản phẩm nào để thanh toán."
+              );
+              return;
+            }
+            navigation.navigate("Pay", { cartItems: selectedItemsArray });
+          }}
         >
           <Text style={styles.checkoutText}>Tiến hành thanh toán</Text>
         </TouchableOpacity>

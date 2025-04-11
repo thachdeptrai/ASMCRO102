@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Image,
   StyleSheet,
@@ -5,13 +6,11 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   TouchableOpacity,
   StatusBar,
 } from "react-native";
-import React, { useState } from "react";
-import { MaterialIcons } from "@expo/vector-icons"; // Thư viện icon
 import { useNavigation } from "@react-navigation/native";
+import API from "./api";
 
 const Register = () => {
   const [username, setUserName] = useState("");
@@ -20,7 +19,6 @@ const Register = () => {
   const [phone, setPhone] = useState("");
   const navigation = useNavigation();
 
-  const apiLogin = "http://10.24.30.107:3000/LOGIN";
   const handleRegister = async () => {
     if (!username || !email || !phone || !password) {
       alert("Vui lòng nhập đầy đủ thông tin");
@@ -28,27 +26,28 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch(apiLogin, {
+      const response = await fetch(API.REGISTER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, email, phone, password }),
+        body: JSON.stringify({ username, email, password, phone }),
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        alert("Đăng ký thành công");
-        navigation.navigate("Login");
-      } else {
+      if (!response.ok) {
         alert(data.message || "Đăng ký thất bại");
+        return;
       }
+
+      alert("Đăng ký thành công");
+      navigation.navigate("Login");
     } catch (error) {
-      console.log("Lỗi", error);
-      alert("Đã có lỗi xảy ra, vui lòng thử lại");
+      alert("Đăng ký thất bại: " + error.message);
     }
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
@@ -59,40 +58,42 @@ const Register = () => {
       <View style={styles.container_input}>
         <Text style={{ fontSize: 30, fontWeight: "bold" }}>Chào mừng bạn</Text>
         <Text style={{ fontSize: 18, marginBottom: 15 }}>
-          Đăng nhập tài khoản
+          Đăng ký tài khoản
         </Text>
         <TextInput
           style={styles.textInput}
           placeholder="Nhập tên"
+          placeholderTextColor="#888"
           onChangeText={(text) => setUserName(text)}
           value={username}
         />
-
         <TextInput
           style={styles.textInput}
           placeholder="E-mail"
+          placeholderTextColor="#888"
           onChangeText={(text) => setEmail(text)}
           value={email}
         />
         <TextInput
           style={styles.textInput}
           placeholder="Số điện thoại"
+          placeholderTextColor="#888"
           onChangeText={(text) => setPhone(text)}
           value={phone}
         />
         <TextInput
           style={styles.textInput}
           placeholder="Mật khẩu"
-          secureTextEntry={true} // Đổi trạng thái khi bấm icon
+          placeholderTextColor="#888"
+          secureTextEntry={true}
           onChangeText={(text) => setPassword(text)}
           value={password}
         />
-
         <Text style={styles.terms}>
           Để đăng ký tài khoản, bạn đồng ý Terms & Conditions and Privacy Policy
         </Text>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+        <TouchableOpacity onPress={handleRegister}>
           <Text style={styles.buttonLogin}>Đăng ký</Text>
         </TouchableOpacity>
         <View style={styles.and}>
@@ -102,8 +103,8 @@ const Register = () => {
         </View>
         <Image source={require("../assets/images/gg_fb.png")} />
         <View style={styles.addtk}>
-          <Text>bạn không có tải khoản?</Text>
-          <TouchableOpacity>
+          <Text>Bạn không có tài khoản?</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
             <Text style={styles.addRegister}>Đăng nhập</Text>
           </TouchableOpacity>
         </View>
@@ -123,14 +124,12 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 210,
   },
-
   container_input: {
     justifyContent: "center",
     alignItems: "center",
     paddingStart: 30,
     paddingEnd: 30,
   },
-
   textInput: {
     width: 350,
     height: 56,
@@ -144,12 +143,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   terms: {
-    textAlign: "center", // Căn giữa chữ
+    textAlign: "center",
     fontSize: 14,
-    // Màu chữ
-    marginHorizontal: 20, // Cách lề 2 bên cho dễ đọc
+    marginHorizontal: 20,
   },
-
   buttonLogin: {
     backgroundColor: "#4CAF50",
     padding: 15,
@@ -158,7 +155,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 20,
-
     textAlign: "center",
     marginTop: 20,
     width: 350,
@@ -173,10 +169,10 @@ const styles = StyleSheet.create({
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: "#4CAF50", // Màu đường kẻ
+    backgroundColor: "#4CAF50",
   },
   orText: {
-    marginHorizontal: 10, // Khoảng cách giữa chữ và đường kẻ
+    marginHorizontal: 10,
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -187,10 +183,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
-
   addRegister: {
     color: "#4CAF50",
     marginStart: 5,
   },
 });
-

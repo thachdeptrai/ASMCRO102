@@ -20,18 +20,9 @@ import ToolsSecreen from "./ToolsSecreen";
 import PayScreen from "./PayScreen";
 import LoginScreen from "../login/Login";
 import Register from "../login/Register";
-
-const NotificationScreen = () => (
-  <View style={styles.screenContainer}>
-    <Text>Notifications Screen</Text>
-  </View>
-);
-
-const UserScreen = () => (
-  <View style={styles.screenContainer}>
-    <Text>User Screen</Text>
-  </View>
-);
+import NotificationScreen from "./NotificationScreen";
+import UserScreen from "./UserScreen";
+import EditUserScreen from "./User/EditUserScreen";
 
 // Stack cho Home
 const Stack = createStackNavigator();
@@ -136,7 +127,7 @@ const HomeStack = () => (
 const SearchStack = () => (
   <Stack.Navigator>
     <Stack.Screen
-      name="SearchScreen" // Đổi tên để tránh trùng lặp
+      name="SearchScreen"
       component={SearchScreen}
       options={({ navigation }) => ({
         headerTitle: () => <Text>Tìm kiếm</Text>,
@@ -149,6 +140,35 @@ const SearchStack = () => (
           </TouchableOpacity>
         ),
         headerTitleAlign: "center",
+      })}
+    />
+    <Stack.Screen
+      name="EditUser"
+      component={EditUserScreen}
+      options={{ title: "Chỉnh sửa thông tin", headerTitleAlign: "center" }}
+    />
+    <Stack.Screen
+      name="DetailScreen"
+      component={DetailScreen}
+      options={({ route, navigation }) => ({
+        title: route.params?.product?.name || "Chi Tiết",
+        headerTitleAlign: "center",
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{ paddingLeft: 15 }}
+          >
+            <MaterialIcons name="arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+        ),
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("GioHang")}
+            style={{ paddingRight: 15 }}
+          >
+            <MaterialIcons name="shopping-cart" size={24} color="black" />
+          </TouchableOpacity>
+        ),
       })}
     />
   </Stack.Navigator>
@@ -176,9 +196,24 @@ const AppHome = () => (
     <Tab.Screen name="Home" component={HomeStack} />
     <Tab.Screen name="Search" component={SearchStack} />
     <Tab.Screen name="Notifications" component={NotificationScreen} />
-    <Tab.Screen name="User" component={UserScreen} />
+    <Tab.Screen name="User" component={UserStack} />
   </Tab.Navigator>
 );
+const UserStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="UserScreen"
+      component={UserScreen}
+      options={{ title: "Tài khoản", headerTitleAlign: "center" }}
+    />
+    <Stack.Screen
+      name="EditUser"
+      component={EditUserScreen}
+      options={{ title: "Chỉnh sửa thông tin", headerTitleAlign: "center" }}
+    />
+  </Stack.Navigator>
+);
+
 // Stack cho Login & Register
 const RootStack = createStackNavigator();
 export default function App() {

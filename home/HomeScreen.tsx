@@ -13,17 +13,12 @@ import axios from "axios";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
-
+import API from"../login/api";
 const HomeScreen = () => {
   const [productTree, setProductTree] = useState([]);
   const [productPot, setProductPot] = useState([]);
   const [productToolst, setProductToolst] = useState([]);
   const navigation = useNavigation();
-
-  const apiTree = "http://10.24.30.107:3000/product_tree";
-  const apiPot = "http://10.24.30.107:3000/product_pot";
-  const apiToolst = "http://10.24.30.107:3000/product_tools";
-
   useEffect(() => {
     console.log("Loading...");
     getList();
@@ -32,9 +27,9 @@ const HomeScreen = () => {
   const getList = async () => {
     try {
       const [treeRes, potRes, toolsRes] = await Promise.all([
-        axios.get(apiTree),
-        axios.get(apiPot),
-        axios.get(apiToolst),
+        axios.get(API.TREE),
+        axios.get(API.POT),
+        axios.get(API.TOOLS),
       ]);
       setProductTree(treeRes.data);
       setProductPot(potRes.data);
@@ -82,7 +77,7 @@ const HomeScreen = () => {
           <FlatList
             data={productTree}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item._id.toString()}
             numColumns={2}
             scrollEnabled={false}
           />
@@ -96,7 +91,7 @@ const HomeScreen = () => {
           <FlatList
             data={productPot}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item._id.toString()}
             numColumns={2}
             scrollEnabled={false}
           />
@@ -113,7 +108,7 @@ const HomeScreen = () => {
           <FlatList
             data={productToolst}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item._id.toString()}
             numColumns={2}
             scrollEnabled={false}
           />
@@ -181,18 +176,22 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    justifyContent: "center",
-
-    margin: 10,
-
+    backgroundColor: "#fff",
     borderRadius: 10,
+    padding: 10,
+    margin: 10,
     shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
   },
   image: {
-    width: 150,
+    width: "100%",
     height: 140,
-    borderRadius: 5,
+    borderRadius: 10,
   },
+  
   name: {
     fontSize: 16,
     fontWeight: "bold",
